@@ -1,0 +1,29 @@
+name: Deploy Supabase Functions
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mapa/supabase/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 1.165.0
+
+      - name: Deploy Edge Functions
+        working-directory: ./mapa
+        run: |
+          supabase functions deploy create-embedding --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+          supabase functions deploy search-nearby --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+          supabase functions deploy search-similar --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+          supabase functions deploy hybrid-search --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
